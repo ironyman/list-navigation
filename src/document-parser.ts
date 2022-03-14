@@ -82,11 +82,13 @@ export class DocumentScanner {
     editor: vscode.TextEditor;
     documentText: string;
     documentTextPos: number;
+    scanDepth: number;
 
     constructor(editor: vscode.TextEditor) {
         this.editor = editor;
         this.documentText = editor.document.getText();
         this.documentTextPos = editor.document.offsetAt(editor.selection.active);
+        this.scanDepth = 0;
     }
 
     static fromActiveEditor(): DocumentScanner {
@@ -105,8 +107,18 @@ export class DocumentScanner {
         return 0;
     }
 
+    getCaller(): string {
+        const stack = new Error().stack!!.split("\n");
+        return stack[3].trim().split(" ")[1];
+    }
+
     reportScanningStart(from: number, msg: string) {
-        DbgChannel.appendLine(`Scan from ${this.offsetToLineColumn(from)} - ${msg}`);
+        DbgChannel.appendLine(` `.repeat(this.scanDepth) + `${this.getCaller()} start from ${this.offsetToLineColumn(from)} - ${msg}`);
+        ++this.scanDepth;
+    }
+    reportScanningStop(from: number, msg: string) {
+        --this.scanDepth;
+        DbgChannel.appendLine(` `.repeat(this.scanDepth) + `${this.getCaller()} stop from ${this.offsetToLineColumn(from)} - ${msg}`);
     }
 
     offsetToLineColumn(offset: number): string {
@@ -133,7 +145,7 @@ export class DocumentScanner {
 
     --*/
     scanStringForward(from: number, kind: char): number {
-        this.reportScanningStart(from, `scanStringForward kind: ${kind}`);
+        this.reportScanningStart(from, `kind: ${addSlashes(kind)}`);
 
         let pos = from;
         const stop = this.documentEnd();
@@ -147,6 +159,7 @@ export class DocumentScanner {
             switch (code) {
                 case SyntaxCode.String:
                     if (kind == ch) {
+                        this.reportScanningStop(pos, "");
                         return pos;
                     }
                     break;
@@ -184,7 +197,7 @@ export class DocumentScanner {
 
     --*/
     scanStringBackward(from: number, kind: char): number {
-        this.reportScanningStart(from, `scanStringBackward kind: ${kind}`);
+        this.reportScanningStart(from, `kind: ${addSlashes(kind)}`);
 
         const editor = vscode.window.activeTextEditor!!;
         const document = editor.document!!;
@@ -203,7 +216,8 @@ export class DocumentScanner {
                     // Make sure ch is not quoted.
                     if (kind == ch && 
                         (pos == stop || syntax(document.languageId, this.fetchChar(pos)) != SyntaxCode.Escape)) {
-                        return pos;
+                            this.reportScanningStop(pos, "");
+                            return pos;
                     }
                     break;
             }
@@ -234,7 +248,7 @@ export class DocumentScanner {
 
     --*/
     scanForwardUntil(from: number, stopChar: char, stopChar1?: char): number {
-        this.reportScanningStart(from, `scanForwardUntil stopChar: ${addSlashes(stopChar)} \
+        this.reportScanningStart(from, `stopChar: ${addSlashes(stopChar)} \
             stopChar1: ${stopChar1 ? addSlashes(stopChar1) : "none"}`);
 
         let pos = from;
@@ -256,6 +270,7 @@ export class DocumentScanner {
                     break;
                 default:
                     if (ch == stopChar && (!stopChar1 || this.fetchChar(pos) == stopChar1)) {
+                        this.reportScanningStop(pos, "");            
                         return pos;
                     }
                     break;
@@ -315,6 +330,7 @@ export class DocumentScanner {
         }
 
         if (searchIndex == searchCount) {
+            this.reportScanningStop(pos, "");
             return pos;
         }
         throw new Error("scanBackwardUntil stop characters not found.");
@@ -434,7 +450,7 @@ export class DocumentScanner {
                             break countOnce;
                         break;
                     case SyntaxCode.String:
-                        pos = this.scanStringBackward(pos, ch);
+                        pos = this.scanStringBackward(pos - 1, ch);
                         break;
                     case SyntaxCode.SingleLineComment:
                         // syntax() should have verified that the next character is also a /.
@@ -445,7 +461,7 @@ export class DocumentScanner {
                     case SyntaxCode.MultiLineCommentStart:
                         break;
                     case SyntaxCode.MultiLineCommentEnd:
-                        pos = this.scanBackwardUntil(pos, "*", "/");
+                        pos = this.scanBackwardUntil(pos - 1, "*", "/");
                         break;
                 }
             }
@@ -459,6 +475,7 @@ export class DocumentScanner {
             ++count;
         }
 
+        this.reportScanningStop(pos, "");
         return pos;
     }
 }

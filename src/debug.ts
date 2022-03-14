@@ -2,7 +2,6 @@ import * as vscode from 'vscode';
 
 export let DbgChannel = vscode.window.createOutputChannel("List navigation");
 
-
 class AssertionError extends Error {
     msg?: string;
     constructor(msg?: string) {
