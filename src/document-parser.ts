@@ -219,7 +219,14 @@ export class DocumentScanner {
                             this.reportScanningStop(pos, "");
                             return pos;
                     }
+
                     break;
+            }
+            
+            // Hack to make this work if starting scan in middle of string.
+            if (ch == "\n") {
+                this.reportScanningStop(pos, "");
+                return pos;
             }
         }
 
