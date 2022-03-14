@@ -22,23 +22,23 @@
 		"commands": [
 			{
 				"command": "list-navigation.forward-list",
-				"title": "Hello World"
+				"title": "Move forward over a parenthetical group"
 			},
 			{
 				"command": "list-navigation.backward-list",
-				"title": "Hello World"
+				"title": "Move backward over a parenthetical group"
 			},
 			{
 				"command": "list-navigation.backward-up-list",
-				"title": "Hello World"
+				"title": "Move up in parenthesis structure"
 			},
 			{
 				"command": "list-navigation.down-list",
-				"title": "Hello World"
+				"title": "Move down in parenthesis structure"
 			},
 			{
 				"command": "list-navigation.expand-select-list",
-				"title": "Hello World"
+				"title": "Select surrounding parenthesis structure"
 			},
 			{
 				"command": "list-navigation.helloWorld",
