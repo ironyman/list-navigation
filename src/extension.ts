@@ -1,5 +1,3 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 
 enum SyntaxCode {
@@ -50,6 +48,22 @@ function assert(condition: any, msg?: string): asserts condition {
 }
 
 let Dbg = vscode.window.createOutputChannel("List navigation");
+
+class DocumentScanner {
+    editor: vscode.TextEditor;
+    documentText: string;
+    documentTextPos: number;
+
+    constructor(editor: vscode.TextEditor) {
+        this.editor = editor;
+        this.documentText = editor.document.getText();
+        this.documentTextPos = editor.document.offsetAt(editor.selection.active);
+    }
+
+    static fromActiveEditor(): DocumentScanner {
+        return new DocumentScanner(vscode.window.activeTextEditor!!);
+    }
+}
 
 function isAscii(ch: char): boolean {
     return ch.charCodeAt(0) <= 127;
@@ -154,7 +168,6 @@ function syntax(languageId: string, ch: char, ch1?: char): SyntaxCode {
     return SyntaxCode.Whitespace;
 }
 
-
 /*++
 
 Routine Description:
@@ -175,7 +188,6 @@ Return Value:
 --*/
 function scanStringForward(from: vscode.Position, kind: char): vscode.Position {
     Dbg.appendLine(`scanStringForward from: ${from.line + 1}:${from.character + 1} kind: ${kind}`);
-
 
     const editor = vscode.window.activeTextEditor!!;
     const document = editor.document!!;
@@ -504,84 +516,26 @@ function scanLists(from: vscode.Position, count: number, depth: number): vscode.
     return pos;
 }
 
-// async function cursorMove<T = unknown>(source: vscode.Position, target: vscode.Position): Promise<T> {
-async function cursorMove(source: vscode.Position, target: vscode.Position): Promise<Boolean> {
-    Dbg.appendLine(`Moving cursor to ${target.line + 1}:${target.character + 1}`);
-    
-    // vscode.window.activeTextEditor?.revealRange(new vscode.Range(target, target), 
-    //     //vscode.TextEditorRevealType.InCenter
-    //     vscode.TextEditorRevealType.Default
-    //     );
+type Writeable<T> = { -readonly [P in keyof T]: T[P] };
 
-    // Awful. This fails if try to move from ^ to $
+function cursorMove(target: vscode.Position) {
     /*
-    if () ^{
+    I think this is the right way
 
-    }$
-
+    https://code.visualstudio.com/api/references/vscode-api
+    let cmd = vscode.commands.registerTextEditorCommand('extension.mysnippet', (te) => {
+    // selection start = line 3, char 5 ||| selection end = line 3, char 5
+    te.selection = new vscode.Selection(5, 3, 5, 3)
+    });
+    context.subscriptions.push(cmd);
     */
-    // if (target.line < source.line) {
-    //     await vscode.commands.executeCommand('cursorMove', {
-    //         to: "up",
-    //         value: source.line - target.line
-    //     });
-    // } else if (target.line > source.line) {
-    //     // If you don't use down, and use negative up movements, it won't work if you try to move past last line.
-    //     // Of for horizontal motion, it won't move to last character in line.
-    //     await vscode.commands.executeCommand('cursorMove', {
-    //         to: "down",
-    //         value: target.line - source.line
-    //     });
-    // }
 
-    // if (target.character < source.character) {
-    //      await vscode.commands.executeCommand('cursorMove', {
-    //         to: "left",
-    //         value: source.character - target.character
-    //     });
-    // } else if (target.character > source.character) {
-    //     let result = await vscode.commands.executeCommand('cursorMove', {
-    //         to: "right",
-    //         value: target.character - source.character
-    //     });
 
-    // }
-
-    // VSCODE BUG: if source.character == 0, it will move to previous line?? sometimes but not always??
-    if (source.character != 0) {
-        await vscode.commands.executeCommand('cursorMove', {
-            to: "left",
-            by: "character",
-            value: source.character
-        });
-    }
-
-    if (target.line < source.line) {
-        await vscode.commands.executeCommand('cursorMove', {
-            to: "up",
-            value: source.line - target.line
-        });
-    } else if (target.line > source.line) {
-        // If you don't use down, and use negative up movements, it won't work if you try to move past last line.
-        // Or for horizontal motion, it won't move to last character in line.
-        await vscode.commands.executeCommand('cursorMove', {
-            to: "down",
-            value: target.line - source.line
-        });
-    }
-
-    // VSCODE BUG: if target.character == 0, it will still move right by 1
-    if (target.character) {
-        await vscode.commands.executeCommand('cursorMove', {
-            to: "right",
-            by: "character",
-            value: target.character
-        });
-    }
-
-    return Promise.resolve(true);
+    let editor: Writeable<vscode.TextEditor> = vscode.window.activeTextEditor!!;
+    const newSe = new vscode.Selection(target.line, target.character, target.line, target.character);
+    editor.selection = newSe;
+    editor.revealRange(newSe, vscode.TextEditorRevealType.Default);
 }
-
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -625,7 +579,7 @@ export function activate(context: vscode.ExtensionContext) {
         const cursorPos = editor.selection.active!!;
         try {
             const target = scanLists(cursorPos, 1, 0);
-            cursorMove(cursorPos, target);
+            cursorMove(target);
         } catch (e: any) {
 
             Dbg.appendLine(e.message);
@@ -637,7 +591,7 @@ export function activate(context: vscode.ExtensionContext) {
         const cursorPos = editor.selection.active!!;
         try {
             const target = scanLists(cursorPos, -1, 0);
-            cursorMove(cursorPos, target);
+            cursorMove(target);
         } catch (e: any) {
             Dbg.appendLine(e.message);
         }
