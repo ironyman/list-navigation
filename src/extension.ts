@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { cursorMove, cursorSelect } from './cursor';
-import { DocumentScanner } from './document-parser';
+import { DocumentScanner } from './document-scanner';
 import { DbgChannel } from './debug';
 
 // this method is called when your extension is activated
