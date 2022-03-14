@@ -1,6 +1,18 @@
-# list-navigation README
+# list-navigation
 
-This is the README for your extension "list-navigation". After writing up a brief description, we recommend including the following sections.
+Move over groupings of text delimited by parentheses, brackets, braces, etc.
+
+# Build
+```
+npm i
+npm run watch
+```
+Run
+```
+code --extensionDevelopmentPath="$(pwd)"
+```
+
+Default key bindings are defined in package.json under keybindings key.
 
 ## Features
 
