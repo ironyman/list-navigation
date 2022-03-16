@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { cursorMove, cursorSelect } from './cursor';
 import { DocumentScanner } from './document-scanner';
+import { scanLists } from './syntax';
 import { DbgChannel } from './debug';
 
 // this method is called when your extension is activated
@@ -10,6 +11,10 @@ export function activate(context: vscode.ExtensionContext) {
     // Use the console to output diagnostic information (console.log) and errors (console.error)
     // This line of code will only be executed once when your extension is activated
     console.log('Congratulations, your extension "list-navigation" is now active!');
+
+    if (process.env.VSCODE_DEBUG_MODE === "true") {
+        DbgChannel.show();
+    }
 
     // The command has been defined in the package.json file
     // Now provide the implementation of the command with registerCommand
@@ -42,7 +47,7 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerCommand('list-navigation.forward-list', () => {
         let doc = DocumentScanner.fromActiveEditor();
         try {
-            const target = doc.scanLists(doc.documentTextPos, 1, 0);
+            const target = scanLists(doc, doc.documentTextPos, 1, 0);
             cursorMove(doc.editor, target);
         } catch (e: any) {
             DbgChannel.appendLine(e.message);
@@ -51,7 +56,7 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerCommand('list-navigation.backward-list', () => {
         let doc = DocumentScanner.fromActiveEditor();
         try {
-            const target = doc.scanLists(doc.documentTextPos, -1, 0);
+            const target = scanLists(doc, doc.documentTextPos, -1, 0);
             cursorMove(doc.editor, target);
         } catch (e: any) {
             DbgChannel.appendLine(e.message);
@@ -60,7 +65,7 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerCommand('list-navigation.backward-up-list', () => {
         let doc = DocumentScanner.fromActiveEditor();
         try {
-            const target = doc.scanLists(doc.documentTextPos, -1, 1);
+            const target = scanLists(doc, doc.documentTextPos, -1, 1);
             cursorMove(doc.editor, target);
         } catch (e: any) {
             DbgChannel.appendLine(e.message);
@@ -69,7 +74,7 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerCommand('list-navigation.down-list', () => {
         let doc = DocumentScanner.fromActiveEditor();
         try {
-            const target = doc.scanLists(doc.documentTextPos, 1, -1);
+            const target = scanLists(doc, doc.documentTextPos, 1, -1);
             cursorMove(doc.editor, target);
         } catch (e: any) {
             DbgChannel.appendLine(e.message);
@@ -78,8 +83,8 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerCommand('list-navigation.expand-select-list', () => {
         let doc = DocumentScanner.fromActiveEditor();
         try {
-            const active = doc.scanLists(doc.documentTextPos, -1, 1);
-            const anchor = doc.scanLists(active, 1, 0);
+            const active = scanLists(doc, doc.documentTextPos, -1, 1);
+            const anchor = scanLists(doc, active, 1, 0);
             cursorSelect(doc.editor, anchor, active);
         } catch (e: any) {
             DbgChannel.appendLine(e.message);

@@ -15,3 +15,7 @@ export function assert(condition: any, msg?: string): asserts condition {
       throw new AssertionError(msg);
     }
 }
+
+export function addSlashes(str: string): string {
+    return JSON.stringify(str).slice(1,-1);
+}
