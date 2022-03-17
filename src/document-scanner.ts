@@ -33,7 +33,7 @@ export class DocumentScanner {
     }
 
     documentEnd(): number {
-        return this.documentText.length -1;
+        return this.documentText.length;
     }
 
     documentBegin(): number {

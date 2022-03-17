@@ -344,7 +344,7 @@ export function scanLists(doc: DocumentScanner, from: number, count: number, dep
     const document = editor.document!!;
 
     // Last character is always new line.
-    const stop = count > 0 ? doc.documentText.length - 1 : 0;
+    const stop = count > 0 ? doc.documentEnd() : 0;
 
     // Fail if depth gets below minDepth.
     const minDepth = depth > 0 ? 0 : depth;
