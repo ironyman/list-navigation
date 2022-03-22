@@ -1,5 +1,5 @@
 {
-  "name": "list-navigation",
+	"name": "list-navigation",
 	"displayName": "list-navigation",
 	"description": "Move over groupings of text delimited by parentheses, brackets, braces, etc",
 	"version": "0.0.1",
@@ -12,15 +12,25 @@
 	],
 	"repository": "https://github.com/ironyman/list-navigation",
 	"activationEvents": [
-        "onCommand:list-navigation.forward-list",
-        "onCommand:list-navigation.backward-list",
-        "onCommand:list-navigation.backward-up-list",
-        "onCommand:list-navigation.down-list",
-        "onCommand:list-navigation.expand-select-list",
-        "onCommand:list-navigation.helloWorld"
+		"onCommand:list-navigation.forward-list",
+		"onCommand:list-navigation.backward-list",
+		"onCommand:list-navigation.backward-up-list",
+		"onCommand:list-navigation.down-list",
+		"onCommand:list-navigation.expand-select-list",
+		"onCommand:list-navigation.helloWorld"
 	],
 	"main": "./dist/extension.js",
 	"contributes": {
+		"configuration": {
+			"title": "List navigation",
+			"properties": {
+				"list-navigation.listCharacters": {
+					"type": "string",
+					"default": "{",
+					"description": "These characters are treated (and their corresponding closing sign) as opening and closing of lists. Allowed characters are '{', '[', '(', '<'."
+				}
+			}
+		},
 		"commands": [
 			{
 				"command": "list-navigation.forward-list",
@@ -78,7 +88,7 @@
 				"key": "ctrl+alt+h",
 				"mac": "cmd+alt+h"
 			}
-        ]
+		]
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run package",

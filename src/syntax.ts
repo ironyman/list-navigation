@@ -41,6 +41,34 @@ function isAscii(ch: char): boolean {
     return ch.charCodeAt(0) <= 127;
 }
 
+function isValidOpeningCharacters(chars: string): boolean {
+    return Array.from(chars).every(c => "{[(<".indexOf(c) != -1);
+}
+
+function getListOpeningCharacters(): string {
+    const packageJson = require("../package.json");
+    const config = vscode.workspace.getConfiguration(packageJson.name);
+    const configListCharacters = config.get("listCharacters");
+    if ((typeof configListCharacters === 'string' || configListCharacters instanceof String) && configListCharacters.length > 0) {
+        // Filter out punctuations
+        let candidates = Array.from(configListCharacters).filter(c => ",'\" ".indexOf(c) == -1).join("");
+        if (isValidOpeningCharacters(candidates)) {
+            return String(candidates); // Convert String to string, btw opposite is new String(...)
+        }
+    }
+    
+    return "{";
+}
+
+function getListClosingCharacters(): string {
+    const opposite = Array.from(getListOpeningCharacters()).map(c => { 
+        return c == "("       ? String.fromCharCode((c.charCodeAt(0) + 1)) :
+        "{[<".indexOf(c) >= 0 ? String.fromCharCode((c.charCodeAt(0) + 2))
+                              : assert(false, "Invalid list opening character.")
+    });
+    return opposite.join("");
+}
+
 /*++
 
 Parameters:
@@ -63,9 +91,9 @@ function syntax(languageId: string, ch: char, ch1?: char): SyntaxCode {
     const cLike = ['c', 'cpp', 'json', 'jsonc', 'javascript', 'typescript'];
     assert(cLike.indexOf(languageId) != -1, "Unsupported language");
 
-    if ("[{(".indexOf(ch) != -1) {
+    if (getListOpeningCharacters().indexOf(ch) != -1) {
         return SyntaxCode.Open;
-    } else if ("]})".indexOf(ch) != -1) {
+    } else if (getListClosingCharacters().indexOf(ch) != -1) {
         return SyntaxCode.Close;
     } else if ("\"'`".indexOf(ch) != -1) {
         return SyntaxCode.String;
