@@ -2,7 +2,7 @@
 	"name": "list-navigation",
 	"displayName": "list-navigation",
 	"description": "Move over groupings of text delimited by parentheses, brackets, braces, etc",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"publisher": "ironyman",
 	"engines": {
 		"vscode": "^1.61.0"
@@ -27,30 +27,30 @@
 				"list-navigation.listCharacters": {
 					"type": "string",
 					"default": "{",
-					"description": "These characters are treated (and their corresponding closing sign) as opening and closing of lists. Allowed characters are '{', '[', '(', '<'."
+					"description": "These characters are treated (and their corresponding closing sign) as opening and closing of a block. Allowed characters are '{', '[', '(', '<'."
 				}
 			}
 		},
 		"commands": [
 			{
 				"command": "list-navigation.forward-list",
-				"title": "Move forward over a parenthetical group"
+				"title": "Move forward over a block"
 			},
 			{
 				"command": "list-navigation.backward-list",
-				"title": "Move backward over a parenthetical group"
+				"title": "Move backward over a block"
 			},
 			{
 				"command": "list-navigation.backward-up-list",
-				"title": "Move up in parenthesis structure"
+				"title": "Move up out of a block"
 			},
 			{
 				"command": "list-navigation.down-list",
-				"title": "Move down in parenthesis structure"
+				"title": "Move down into a block"
 			},
 			{
 				"command": "list-navigation.expand-select-list",
-				"title": "Select surrounding parenthesis structure"
+				"title": "Select surrounding block"
 			},
 			{
 				"command": "list-navigation.helloWorld",
