@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { cursorMove, cursorSelect } from './cursor';
+import { cursorMove, cursorMoveWithContext, cursorSelect, cursorSelectWithContext } from './cursor';
 import { DocumentScanner } from './document-scanner';
 import { scanLists } from './syntax';
 import { DbgChannel } from './debug';
@@ -44,48 +44,59 @@ export function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(disposable);
 
-    context.subscriptions.push(vscode.commands.registerCommand('list-navigation.forward-list', () => {
+    context.subscriptions.push(vscode.commands.registerTextEditorCommand('list-navigation.forward-list', (te) => {
         let doc = DocumentScanner.fromActiveEditor();
         try {
-            const target = scanLists(doc, doc.documentTextPos, 1, 0);
-            cursorMove(doc.editor, target);
+            const targetOffset = scanLists(doc, doc.documentTextPos, 1, 0);
+            const target = doc.editor.document.positionAt(targetOffset);
+            te.selection = new vscode.Selection(target.line, target.character, target.line, target.character);
+            doc.editor.revealRange(te.selection, vscode.TextEditorRevealType.InCenterIfOutsideViewport);
         } catch (e: any) {
             DbgChannel.appendLine(e.message);
         }
     }));
-    context.subscriptions.push(vscode.commands.registerCommand('list-navigation.backward-list', () => {
+    context.subscriptions.push(vscode.commands.registerTextEditorCommand('list-navigation.backward-list', (te) => {
         let doc = DocumentScanner.fromActiveEditor();
         try {
-            const target = scanLists(doc, doc.documentTextPos, -1, 0);
-            cursorMove(doc.editor, target);
+            const targetOffset = scanLists(doc, doc.documentTextPos, -1, 0);
+            const target = doc.editor.document.positionAt(targetOffset);
+            te.selection = new vscode.Selection(target.line, target.character, target.line, target.character);
+            doc.editor.revealRange(te.selection, vscode.TextEditorRevealType.InCenterIfOutsideViewport);
         } catch (e: any) {
             DbgChannel.appendLine(e.message);
         }
     }));
-    context.subscriptions.push(vscode.commands.registerCommand('list-navigation.backward-up-list', () => {
+    context.subscriptions.push(vscode.commands.registerTextEditorCommand('list-navigation.backward-up-list', (te) => {
         let doc = DocumentScanner.fromActiveEditor();
         try {
-            const target = scanLists(doc, doc.documentTextPos, -1, 1);
-            cursorMove(doc.editor, target);
+            const targetOffset = scanLists(doc, doc.documentTextPos, -1, 1);
+            const target = doc.editor.document.positionAt(targetOffset);
+            te.selection = new vscode.Selection(target.line, target.character, target.line, target.character);
+            doc.editor.revealRange(te.selection, vscode.TextEditorRevealType.InCenterIfOutsideViewport);
         } catch (e: any) {
             DbgChannel.appendLine(e.message);
         }
     }));
-    context.subscriptions.push(vscode.commands.registerCommand('list-navigation.down-list', () => {
+    context.subscriptions.push(vscode.commands.registerTextEditorCommand('list-navigation.down-list', (te) => {
         let doc = DocumentScanner.fromActiveEditor();
         try {
-            const target = scanLists(doc, doc.documentTextPos, 1, -1);
-            cursorMove(doc.editor, target);
+            const targetOffset = scanLists(doc, doc.documentTextPos, 1, -1);
+            const target = doc.editor.document.positionAt(targetOffset);
+            te.selection = new vscode.Selection(target.line, target.character, target.line, target.character);
+            doc.editor.revealRange(te.selection, vscode.TextEditorRevealType.InCenterIfOutsideViewport);
         } catch (e: any) {
             DbgChannel.appendLine(e.message);
         }
     }));
-    context.subscriptions.push(vscode.commands.registerCommand('list-navigation.expand-select-list', () => {
+    context.subscriptions.push(vscode.commands.registerTextEditorCommand('list-navigation.expand-select-list', (te) => {
         let doc = DocumentScanner.fromActiveEditor();
         try {
-            const active = scanLists(doc, doc.documentTextPos, -1, 1);
-            const anchor = scanLists(doc, active, 1, 0);
-            cursorSelect(doc.editor, anchor, active);
+            const activeOffset = scanLists(doc, doc.documentTextPos, -1, 1);
+            const anchorOffset = scanLists(doc, activeOffset, 1, 0);
+            const anchor = doc.editor.document.positionAt(anchorOffset);
+            const active = doc.editor.document.positionAt(activeOffset);
+            te.selection = new vscode.Selection(anchor.line, anchor.character, active.line, active.character);
+            doc.editor.revealRange(te.selection, vscode.TextEditorRevealType.InCenterIfOutsideViewport);    
         } catch (e: any) {
             DbgChannel.appendLine(e.message);
         }
