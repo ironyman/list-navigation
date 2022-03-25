@@ -10,7 +10,10 @@
 	"categories": [
 		"Other"
 	],
-	"repository": "https://github.com/ironyman/list-navigation",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/ironyman/list-navigation"
+	},
 	"activationEvents": [
 		"onCommand:list-navigation.forward-list",
 		"onCommand:list-navigation.backward-list",
