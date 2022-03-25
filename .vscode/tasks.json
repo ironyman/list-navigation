@@ -48,6 +48,18 @@
 			"problemMatcher": [],
 			"label": "npm: compile",
 			"detail": "webpack"
+		},
+		{
+			"type": "shell",
+			"command": "npm run compile && vsce package",
+			"windows": {
+				"command": "npm run compile; vsce package",
+			},
+			"group": {
+				"kind": "build",
+			},
+			"problemMatcher": [],
+			"label": "Build vsix",
 		}
 	]
 }
