@@ -2,7 +2,7 @@
 	"name": "list-navigation",
 	"displayName": "list-navigation",
 	"description": "Move over groupings of text delimited by parentheses, brackets, braces, etc",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"publisher": "ironyman",
 	"engines": {
 		"vscode": "^1.61.0"
