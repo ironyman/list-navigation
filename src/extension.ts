@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import { cursorMove, cursorMoveWithContext, cursorSelect, cursorSelectWithContext } from './cursor';
 import { DocumentScanner } from './document-scanner';
 import { scanLists } from './syntax';
 import { DbgChannel } from './debug';
