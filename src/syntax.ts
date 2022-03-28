@@ -88,7 +88,7 @@ function syntax(languageId: string, ch: char, ch1?: char): SyntaxCode {
 
     assert(ch.length == 1 && (!ch1 || ch1.length == 1));
     
-    const cLike = ['c', 'cpp', 'json', 'jsonc', 'javascript', 'typescript'];
+    const cLike = ['c', 'cpp', 'json', 'jsonc', 'javascript', 'typescript', 'swift'];
     assert(cLike.indexOf(languageId) != -1, "Unsupported language");
 
     if (getListOpeningCharacters().indexOf(ch) != -1) {
