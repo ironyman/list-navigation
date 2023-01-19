@@ -9,6 +9,10 @@
 			"name": "Run Extension",
 			"type": "extensionHost",
 			"request": "launch",
+			// https://code.visualstudio.com/api/working-with-extensions/testing-extension
+			// code \
+			// --extensionDevelopmentPath=<EXTENSION-ROOT-PATH> \
+			// --extensionTestsPath=<TEST-RUNNER-SCRIPT-PATH>
 			"args": [
 				"--extensionDevelopmentPath=${workspaceFolder}"
 			],
